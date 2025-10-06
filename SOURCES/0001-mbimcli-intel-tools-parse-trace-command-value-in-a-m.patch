@@ -1,0 +1,53 @@
+From 87e606a20037b5730aeac6971c6a9a6c2de3cbf8 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Thu, 23 May 2024 00:03:53 +0200
+Subject: [PATCH 1/2] mbimcli-intel-tools: parse trace command & value in a
+ more straightforward way
+
+Don't conditionalize setting trace_command and trace_value on split
+substrings being non-NULL. It makes a static analysis tool think they
+might be used uninitialized. That can-not happen, because the substrings
+can in fact never be NULL.
+
+Let's keep the check in form of an assert (perhaps to guard against
+a possible glib bug, etc.).
+
+(cherry picked from commit 65d02fc647c42b7c743690c769d4bc2c6f2a69c9)
+---
+ src/mbimcli/mbimcli-intel-tools.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
+
+diff --git a/src/mbimcli/mbimcli-intel-tools.c b/src/mbimcli/mbimcli-intel-tools.c
+index 9faab2b..8ab47c7 100644
+--- a/src/mbimcli/mbimcli-intel-tools.c
++++ b/src/mbimcli/mbimcli-intel-tools.c
+@@ -203,18 +203,16 @@ mbimcli_intel_tools_run (MbimDevice   *device,
+             return;
+         }
+ 
+-        if (split[0]) {
+-            if (!mbimcli_read_trace_command_from_string (split[0], &trace_command)) {
+-                g_printerr ("error: couldn't parse input string, invalid trace command '%s'\n", split[0]);
+-                return;
+-            }
++        g_return_if_fail (split[0] && split[1]);
++
++        if (!mbimcli_read_trace_command_from_string (split[0], &trace_command)) {
++            g_printerr ("error: couldn't parse input string, invalid trace command '%s'\n", split[0]);
++            return;
+         }
+ 
+-        if (split[1]) {
+-            if (!mbimcli_read_uint_from_string (split[1], &trace_value)) {
+-                g_printerr ("error: couldn't parse input string, invalid trace value '%s'\n", split[1]);
+-                return;
+-            }
++        if (!mbimcli_read_uint_from_string (split[1], &trace_value)) {
++            g_printerr ("error: couldn't parse input string, invalid trace value '%s'\n", split[1]);
++            return;
+         }
+ 
+         g_debug ("Asynchronously setting trace info...");
+-- 
+2.45.2
+

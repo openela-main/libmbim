@@ -1,0 +1,45 @@
+From 63be2092ffb232fc646d4237e52fd1f0cf99e07f Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Wed, 22 May 2024 17:49:17 +0200
+Subject: [PATCH 2/2] mbimcli-intel-thermal-rf: fix a potential mem leak in
+ query_rfim_ready()
+
+These were autofree'd on function return, but can actually be assigned
+new allocations on each inner loop interation. Move them inside the
+loop.
+
+(cherry picked from commit 9c42e9d1d6d124907dc17e77a97d2a3023552f1e)
+---
+ src/mbimcli/mbimcli-intel-thermal-rf.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/src/mbimcli/mbimcli-intel-thermal-rf.c b/src/mbimcli/mbimcli-intel-thermal-rf.c
+index 04f477e..901e7aa 100644
+--- a/src/mbimcli/mbimcli-intel-thermal-rf.c
++++ b/src/mbimcli/mbimcli-intel-thermal-rf.c
+@@ -125,10 +125,6 @@ query_rfim_ready (MbimDevice   *device,
+     g_autoptr(GError)                 error = NULL;
+     guint32                           element_count;
+     MbimIntelRfimFrequencyValueArray *rfim_frequency;
+-    g_autofree gchar                 *rssi_str = NULL;
+-    g_autofree gchar                 *sinr_str = NULL;
+-    g_autofree gchar                 *rsrq_str = NULL;
+-    g_autofree gchar                 *rsrp_str = NULL;
+ 
+     response = mbim_device_command_finish (device, res, &error);
+     if (!response || !mbim_message_response_get_result (response, MBIM_MESSAGE_TYPE_COMMAND_DONE, &error)) {
+@@ -151,6 +147,11 @@ query_rfim_ready (MbimDevice   *device,
+              element_count);
+ 
+     for (i = 0; i < element_count; i++) {
++        g_autofree gchar *rssi_str = NULL;
++        g_autofree gchar *sinr_str = NULL;
++        g_autofree gchar *rsrq_str = NULL;
++        g_autofree gchar *rsrp_str = NULL;
++
+         if (rfim_frequency[i]->rssi <= 31)
+             rssi_str = g_strdup_printf ("%d dBm", -113 + (2 * rfim_frequency[i]->rssi));
+         else
+-- 
+2.45.2
+
