@@ -1,16 +1,10 @@
 Name: libmbim
-Version: 1.28.2
-Release: 2%{?dist}
+Version: 1.32.0
+Release: 1%{?dist}
 Summary: Support library for the Mobile Broadband Interface Model protocol
-License: LGPLv2+
-URL: https://www.freedesktop.org/wiki/Software/libmbim/
+License: LGPL-2.1-or-later
+URL: https://gitlab.freedesktop.org/mobile-broadband/libmbim/
 Source: https://gitlab.freedesktop.org/mobile-broadband/libmbim/-/archive/%{version}/%{name}-%{version}.tar.bz2
-
-# rh #2110589 -- FCC unLock support for Dell DW5931e & DW5823e WWAN 5G
-Patch0: 0001-intel-mutual-authentication-new-service-fcc-lock.patch
-
-# rh #2142252 - Dell DW5931e enablement
-Patch1: 0002-intel-tools-new-service-trace-config.patch
 
 BuildRequires: meson >= 0.53
 BuildRequires: gcc
@@ -40,8 +34,7 @@ applications using MBIM functionality from applications that use glib.
 %package utils
 Summary: Utilities to use the MBIM protocol from the command line
 Requires: %{name}%{?_isa} = %{version}-%{release}
-Conflicts: %{name} < 1.26.0
-License: GPLv2+
+License: GPL-2.0-or-later
 
 %description utils
 This package contains the utilities that make it easier to use MBIM
@@ -63,9 +56,8 @@ functionality from the command line.
 %install
 %meson_install
 find %{buildroot}%{_datadir}/gtk-doc |xargs touch --reference meson.build
-find %{buildroot} -type f -name "*.la" -delete
-mkdir -p %{buildroot}%{_datadir}/bash-completion
-cp -a src/mbimcli/mbimcli %{buildroot}%{_datadir}/bash-completion
+mkdir -p %{buildroot}%{_datadir}/bash-completion/completions
+cp -a src/mbimcli/mbimcli %{buildroot}%{_datadir}/bash-completion/completions/
 
 
 %check
@@ -100,6 +92,12 @@ cp -a src/mbimcli/mbimcli %{buildroot}%{_datadir}/bash-completion
 
 
 %changelog
+* Wed Aug 13 2025 Lubomir Rintel <lkundrak@v3.sk> - 1.32.0-1
+- Update to 1.32 (RHEL-101709)
+
+* Thu Mar 06 2025 Lubomir Rintel <lkundrak@v3.sk> - 1.30.0-1
+- Update to 1.30.0
+
 * Mon Jan 02 2023 Lubomir Rintel <lkundrak@v3.sk> - 1.28.2-2
 - Patch for Dell DW5931e enablement
 
