@@ -1,15 +1,10 @@
 Name: libmbim
-Version: 1.30.0
-Release: 6%{?dist}
+Version: 1.32.0
+Release: 1%{?dist}
 Summary: Support library for the Mobile Broadband Interface Model protocol
 License: LGPL-2.1-or-later
 URL: https://gitlab.freedesktop.org/mobile-broadband/libmbim/
 Source: https://gitlab.freedesktop.org/mobile-broadband/libmbim/-/archive/%{version}/%{name}-%{version}.tar.bz2
-
-# Both of these are picked from upstream mbim-1-30 branch post 1.30.0.
-# Will be dropped when we rebase to a later version.
-Patch0: 0001-mbimcli-intel-tools-parse-trace-command-value-in-a-m.patch
-Patch1: 0002-mbimcli-intel-thermal-rf-fix-a-potential-mem-leak-in.patch
 
 BuildRequires: meson >= 0.53
 BuildRequires: gcc
@@ -97,6 +92,9 @@ cp -a src/mbimcli/mbimcli %{buildroot}%{_datadir}/bash-completion/completions/
 
 
 %changelog
+* Wed Aug 13 2025 Lubomir Rintel <lkundrak@v3.sk> - 1.32.0-1
+- Update to 1.32 (RHEL-101710)
+
 * Tue Oct 29 2024 Troy Dawson <tdawson@redhat.com> - 1.30.0-6
 - Bump release for October 2024 mass rebuild:
   Resolves: RHEL-64018
